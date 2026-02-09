@@ -29,7 +29,7 @@ func main() {
 		panic(err)
 	}
 
-	window := metrics.NewRollingWindow[source.NormalizedSnapshot](100)
+	window := metrics.NewRollingWindow[source.NormalizedSnapshot](1000)
 
 	for {
 		select {
@@ -44,6 +44,7 @@ func main() {
 }
 
 var lastPush time.Time
+var ema = metrics.NewEMA(0.2)
 
 func processSnapshot(snapshot source.NormalizedSnapshot, w *metrics.RollingWindow[source.NormalizedSnapshot]) {
 	now := time.Now()
@@ -52,12 +53,11 @@ func processSnapshot(snapshot source.NormalizedSnapshot, w *metrics.RollingWindo
 		w.Push(snapshot)
 		lastPush = now
 
-		logger.Debugf("Snapshot pushed, window size: %d", w.Size())
+		ema.Update(snapshot.LastPrice)
+		if value, ok := ema.Value(); ok {
+			slope := ema.Slope(12)
+			logger.Debugf("Snapshot pushed, window size: %d,last price calc ema value: %.2f, slope value: %.2f", w.Size(), value, slope)
+		}
 	}
 
-	logger.Debugf(
-		"Snapshot received: lp=%.2f, time=%s",
-		snapshot.LastPrice,
-		snapshot.Timestamp.Format("2006-01-02 15:04:05"),
-	)
 }

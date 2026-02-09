@@ -37,6 +37,7 @@ func (e *EMA) Update(value float64) {
 		e.value = value
 		e.initialized = true
 	} else {
+		e.preValue = e.value
 		e.value = e.alpha*value + (1-e.alpha)*e.value
 	}
 }
@@ -60,4 +61,15 @@ func (e *EMA) IsInitialized() bool {
 // Alpha returns the smoothing factor
 func (e *EMA) Alpha() float64 {
 	return e.alpha
+}
+
+func (e *EMA) PreValue() float64 {
+	return e.preValue
+}
+
+func (e *EMA) Slope(timeStep int64) float64 {
+	if e.preValue == 0 {
+		return 0
+	}
+	return (e.value - e.preValue) / float64(timeStep)
 }
