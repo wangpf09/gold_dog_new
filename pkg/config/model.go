@@ -90,7 +90,7 @@ type NotifierConfig struct {
 	WebhookURL     string        `yaml:"webhook_url"`
 	MaxRetries     int           `yaml:"max_retries"`
 	InitialBackoff time.Duration `yaml:"initial_backoff"`
-	MaxBackoff     time.Duration `yaml:"max_backoff"`
+	Backoff        int           `yaml:"backoff"`
 	Timeout        time.Duration `yaml:"timeout"`
 	QueueSize      int           `yaml:"queue_size"`
 	Workers        int           `yaml:"workers"`
